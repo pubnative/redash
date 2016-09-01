@@ -9,6 +9,7 @@ bower install
 sudo pip install -r /opt/redash/current/requirements_dev.txt
 sudo pip install -r /opt/redash/current/requirements.txt
 sudo pip install pymongo==3.2.1
+sudo pip install pyhive==0.1.6
 
 #update database
 bin/run ./manage.py database drop_tables
@@ -17,4 +18,3 @@ bin/run ./manage.py users create --admin --password admin "Admin" "admin"
 
 #Purge Redis cache
 redis-cli -n 1 FLUSHALL
-
