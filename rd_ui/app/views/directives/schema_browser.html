@@ -9,7 +9,7 @@
     <div ng-repeat="table in schema | filter: searchSchema">
       <div class="table-name" ng-click="showTable(table)">
         <i class="fa fa-table" style='float: left; padding-right: 5px;padding-top: 3px;'></i>
-        <strong><span title="{{table.name}}" alt="{{table.name}}" ng-bind-html="table.name.split('.')[1] | highlight:schemaFilter" class='ellipsis' style='width: 200px; float: left'></span></strong>
+        <strong><span title="{{table.name}}" alt="{{table.name}}" ng-bind-html="table.name.replace('default.', '')| highlight:schemaFilter" class='ellipsis' style='width: 200px; float: left'></span></strong>
         <span style="float:right" ng-if="filtered.length !== 0">{{filtered.length}}</span>
         <span ng-if="table.size !== undefined"> ({{table.size}})</span>
       </div>
