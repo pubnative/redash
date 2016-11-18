@@ -88,7 +88,7 @@
         'syntax': '='
       },
       template: '<style>.ace_editor.fullScreen {\
-          height: auto;\
+          height: 448px;\
           width: auto;\
           border: 0;\
           margin: 0;\
@@ -97,9 +97,8 @@
           bottom: 0;\
           left: 0;\
           right: 0;\
-          z-index: 10;}\
-        .fullScreen {\
-          overflow: hidden;}\
+          z-index: -10;}\
+          .change-t-padding { padding-top: 10px ! important}\
       </style><div ui-ace="editorOptions" ng-model="query.query"></div>',
       link: {
         pre: function ($scope, element) {
@@ -151,10 +150,14 @@
                 }
 
                 $scope.fullScreenEditor = function fullScreenEditor(editor){
-                    var fullScreen = dom.toggleCssClass(document.body, "fullScreen")
-                    dom.setCssClass(editor.container, "fullScreen", fullScreen)
-                    editor.setAutoScrollEditorIntoView(!fullScreen)
+
                     document.querySelector('.navbar').classList.toggle("hide")
+                    document.querySelector('.container .row.bg-white.m-t-10').classList.toggle("hide")
+                    document.querySelector('.schema-container').classList.toggle("hide")
+                    angular.element('.pace-done').toggleClass('change-t-padding')
+                    angular.element('.container .editor-box').removeClass('col-md-9')
+                    angular.element('.container .editor-box').toggleClass('col-md-12')
+
                     editor.resize();
                     editor.focus();
                 }
@@ -176,6 +179,7 @@
               $scope.$parent.$on("angular-resizable.resizing", function (event, args) {
                 editor.resize();
               });
+              $scope.query.editor = editor;
 
               editor.focus();
             }
@@ -265,7 +269,7 @@
       template: '<button type="button" class="btn btn-default btn-s"\
                    ng-click="fullScreenEditor()">\
                     <span class="zmdi zmdi-fullscreen"></span>\
-                     Full Screen\
+                     Toggle Width\
                 </button>',
       link: function($scope) {
         $scope.fullScreenEditor = function fullScreenEditor() {
@@ -283,28 +287,46 @@
       },
       templateUrl: '/views/directives/schema_browser.html',
       link: function ($scope) {
+
         $scope.showTable = function(table) {
           table.collapsed = !table.collapsed;
           $scope.$broadcast('vsRepeatTrigger');
         }
 
         $scope.getKeys = function(colDict) {
-          return Object.keys(colDict)
+          return Object.keys(colDict).sort()
         }
 
         $scope.getSize = function(table) {
-
           var size = 18;
-
           if (!table.collapsed) {
             size += 18 * table.columns.length;
           }
-
           return size;
+        }
+
+        $scope.searchSchema = function(table) {
+
+          if (!$scope.schemaFilter) {return true}
+
+          if ( table.name.toLowerCase().indexOf($scope.schemaFilter) != -1 ) {
+            return true
+          };
+
+          var columns = Object.keys(table.columns)
+          for (var i = 0; i < columns.length; i++) {
+            var index = i;
+            if ( columns[index].toLowerCase().indexOf($scope.schemaFilter) != -1 ) {
+              return true
+            }
+          };
+
+          return false
         }
       }
     }
   }
+
 
   function queryTimePicker() {
     return {

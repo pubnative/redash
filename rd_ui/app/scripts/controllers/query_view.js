@@ -88,7 +88,7 @@
     }
 
     Events.record(currentUser, 'view', 'query', $scope.query.id);
-    if ($scope.query.hasResult() || $scope.query.paramsRequired()) {
+    if ($scope.query.hasResult()) {
       getQueryResult();
     }
     $scope.queryExecuting = false;
@@ -224,7 +224,6 @@
 
       updateSchema();
       $scope.dataSource = _.find($scope.dataSources, function(ds) { return ds.id == $scope.query.data_source_id; });
-      $scope.executeQuery();
     };
 
     $scope.setVisualizationTab = function (visualization) {
