@@ -73,7 +73,11 @@ class Presto(BaseQueryRunner):
     def get_schema(self, get_stats=False):
         schema = {}
         query = """
-        SELECT table_schema, table_name, column_name, data_type
+        SELECT
+            (case when table_schema = 'applift_api_production' then '' else table_schema end) table_schema
+            , table_name
+            , column_name
+            , data_type
         FROM information_schema.columns
         WHERE table_schema in ('bi', 'default', 'applift_api_production', 'temp')
         ORDER BY table_schema, table_name, column_name asc
