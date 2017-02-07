@@ -104,7 +104,7 @@ class Presto(BaseQueryRunner):
         return schema.values()
 
     def run_query(self, query, *redash_user):
-        redash_user = redash_user[0] if redash_user else 'app'
+        redash_user = redash_user[0].encode('ascii', errors='ignore') if redash_user else 'app'
         connection = presto.connect(
                 host=self.configuration.get('host', ''),
                 port=self.configuration.get('port', 8080),
