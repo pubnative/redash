@@ -1,0 +1,92 @@
+#!/bin/bash
+set -x
+set -e
+
+workerui() {
+  echo "Starting flower on 5555 port..."
+  exec flower --broker="${REDASH_CELERY_BROKER}" -A "redash.worker" --port=5555
+}
+
+worker() {
+  WORKERS_COUNT=${WORKERS_COUNT:-2}
+  QUEUES=${QUEUES:-queries,scheduled_queries,celery}
+
+  workerui &
+  echo "Starting $WORKERS_COUNT workers for queues: $QUEUES..."
+  exec /usr/local/bin/celery worker --app=redash.worker --beat -c$WORKERS_COUNT -Q"${QUEUES}" -linfo --maxtasksperchild=10 -Ofair -n worker@%n
+}
+
+scheduler() {
+  WORKERS_COUNT=${WORKERS_COUNT:-1}
+  QUEUES=${QUEUES:-celery}
+
+  echo "Starting scheduler and $WORKERS_COUNT workers for queues: $QUEUES..."
+
+  exec /usr/local/bin/celery worker --app=redash.worker --beat -c$WORKERS_COUNT -Q$QUEUES -linfo --maxtasksperchild=10 -Ofair
+}
+
+server() {
+  SERVER_PORT=${SERVER_PORT:-5000}
+  SERVER_WORKERS_COUNT=${SERVER_WORKERS_COUNT:-4}
+  SERVER_OPTS=${SERVER_OPTS:-"-b 0.0.0.0:$SERVER_PORT --name redash -w $SERVER_WORKERS_COUNT --max-requests 1000"}
+  exec /usr/local/bin/gunicorn $SERVER_OPTS redash.wsgi:app
+}
+
+help() {
+  echo "Redash Docker."
+  echo ""
+  echo "Usage:"
+  echo ""
+
+  echo "server -- start Redash server (with gunicorn)"
+  echo "c -- start Celery worker"
+  echo "scheduler -- start Celery worker with a beat (scheduler) process"
+  echo ""
+  echo "shell -- open shell"
+  echo "dev_server -- start Flask development server with debugger and auto reload"
+  echo "create_db -- create database tables"
+  echo "manage -- CLI to manage redash"
+}
+
+tests() {
+  export REDASH_DATABASE_URL="postgresql://postgres@postgres/tests"
+  exec make test
+}
+
+case "$1" in
+  worker)
+    shift
+    worker
+    ;;
+  workerui)
+    shift
+    workerui
+    ;;
+  server)
+    shift
+    server
+    ;;
+  scheduler)
+    shift
+    scheduler
+    ;;
+  dev_server)
+    exec /app/manage.py runserver --debugger --reload -h 0.0.0.0
+    ;;
+  shell)
+    exec /app/manage.py shell
+    ;;
+  create_db)
+    exec /app/manage.py database create_tables
+    ;;
+  manage)
+    shift
+    exec /app/manage.py $*
+    ;;
+  tests)
+    tests
+    ;;
+  *)
+    help
+    ;;
+esac
