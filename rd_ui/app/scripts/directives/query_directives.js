@@ -109,10 +109,10 @@
             mode: 'json',
             require: ['ace/ext/language_tools'],
             advanced: {
-              behavioursEnabled: true,
-              enableSnippets: true,
-              enableBasicAutocompletion: true,
-              enableLiveAutocompletion: true,
+              behavioursEnabled: false,
+              enableSnippets: false,
+              enableBasicAutocompletion: false,
+              enableLiveAutocompletion: false,
               autoScrollEditorIntoView: true,
             },
             onLoad: function(editor) {
@@ -129,6 +129,7 @@
                 snippetManager.register(m.snippets || [], m.scope);
               });
 
+              editor.setOption('enableLiveAutocompletion', false);
               editor.$blockScrolling = Infinity;
               editor.getSession().setUseWrapMode(true);
               editor.setShowPrintMargin(false);
@@ -139,14 +140,15 @@
               });
 
               $scope.$watch('schema', function(newSchema, oldSchema) {
+                editor.setOption('enableLiveAutocompletion', false);
                 if (newSchema !== oldSchema) {
                   var tokensCount = _.reduce(newSchema, function(totalLength, table) { return totalLength + table.columns.length }, 0);
                   // If there are too many tokens we disable live autocomplete, as it makes typing slower.
-                  if (tokensCount > 5000) {
-                    editor.setOption('enableLiveAutocompletion', false);
-                  } else {
-                    editor.setOption('enableLiveAutocompletion', true);
-                  }
+                  // if (tokensCount > 5000) {
+                  //   editor.setOption('enableLiveAutocompletion', false);
+                  // } else {
+                  //   editor.setOption('enableLiveAutocompletion', true);
+                  // }
                 }
 
                 $scope.fullScreenEditor = function fullScreenEditor(editor){

@@ -46,7 +46,7 @@
     $scope.editorOptions = {
       mode: 'snippets',
       advanced: {
-        behavioursEnabled: true,
+        behavioursEnabled: false,
         enableSnippets: false,
         autoScrollEditorIntoView: true,
       },
