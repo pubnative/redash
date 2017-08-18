@@ -3,8 +3,9 @@ set -x
 set -e
 
 workerui() {
-  echo "Starting flower on 5555 port..."
-  exec flower --broker="${REDASH_CELERY_BROKER}" -A "redash.worker" --port=5555
+  WORKER_UI_PORT=${WORKER_UI_PORT:-5555}
+  echo "Starting flower on ${WORKER_UI_PORT} port..."
+  exec flower --broker="${REDASH_CELERY_BROKER}" -A "redash.worker" --port=$WORKER_UI_PORT
 }
 
 worker() {
