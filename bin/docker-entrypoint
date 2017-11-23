@@ -9,12 +9,14 @@ workerui() {
 }
 
 worker() {
+  WORKER_NAME=${WORKER_NAME:-worker}
+  WORKER_HOSTNAME=${WORKER_HOSTNAME:-%n}
   WORKERS_COUNT=${WORKERS_COUNT:-2}
   QUEUES=${QUEUES:-queries,scheduled_queries,celery}
 
   workerui &
   echo "Starting $WORKERS_COUNT workers for queues: $QUEUES..."
-  exec /usr/local/bin/celery worker --app=redash.worker --beat -c$WORKERS_COUNT -Q"${QUEUES}" -linfo --maxtasksperchild=10 -Ofair -n worker@%n
+  exec /usr/local/bin/celery worker --app=redash.worker --beat -c$WORKERS_COUNT -Q"${QUEUES}" -linfo --maxtasksperchild=10 -Ofair -n "${WORKER_NAME}@${WORKER_HOSTNAME}"
 }
 
 scheduler() {

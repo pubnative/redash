@@ -22,4 +22,9 @@ RUN sudo -u redash -H make deps \
 
 USER redash
 
+ENV WORKER_NAME worker
+ENV WORKER_HOSTNAME "%n"
+ENV WORKER_UI_PORT 5555
+ENV WORKERS_COUNT 2
+
 ENTRYPOINT ["/app/bin/docker-entrypoint"]
